@@ -1,45 +1,27 @@
 telephone_book = []
 
 
-def input_error(command_name):
-    def decorator(func):
-        def decorator_with_arguments(command=""):
-            try:
-                if command_name == "hello" or command_name == "show_all":
-                    res = func()
-                else:
-                    res = func(command)
-                    if not res:
-                        return "I'm not found result. Please check the input"
-
-                if command_name == "add" or command_name == "change":
-                    if len(command.split(" ")) < 3:
-                        return "Give me name and phone please"
-                    elif len(command.split(" ")) > 3:
-                        return "Too many arguments. Give me name and phone please"
-                elif command_name == "phone":
-                    if len(command.split(" ")) < 2:
-                        return "Enter user name please"
-                    elif len(command.split(" ")) > 3:
-                        return "Too many arguments. Enter only user name please"
-
-            except KeyError:
-                return "KeyError"
-            except ValueError:
-                return "ValueError"
-            except IndexError:
-                return "IndexError"
-            return res
-        return decorator_with_arguments
-    return decorator
+def input_error(func):
+    def decorator_with_arguments(command=""):
+        try:
+            res = func(command)
+            if res is None:
+                return "Phone not found"
+        except KeyError:
+            return "KeyError"
+        except ValueError:
+            return "Phone not number"
+        except IndexError:
+            return "Give me name and phone please"
+        return res
+    return decorator_with_arguments
 
 
-@input_error("hello")
 def hello():
     return "How can I help you?"
 
 
-@input_error("add")
+@input_error
 def add(command):
     name = command.split(" ")[1]
     phone_number = command.split(" ")[2]
@@ -51,7 +33,7 @@ def add(command):
     return "Phone was successfully added"
 
 
-@input_error("change")
+@input_error
 def change(command):
     for user in telephone_book:
         if list(user.keys())[0] == command.split(" ")[1]:
@@ -59,14 +41,13 @@ def change(command):
             return "Phone was successfully changed"
 
 
-@input_error("phone")
+@input_error
 def phone(command):
     for user in telephone_book:
         if list(user.keys())[0] == command.split(" ")[1]:
             return user[list(user.keys())[0]]
 
 
-@input_error("show_all")
 def show_all():
     result = []
     for user in telephone_book:
